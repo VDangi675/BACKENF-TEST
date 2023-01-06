@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 // const cors = require("cors");
 const orders = require("../models/order")
 const Product = require("../models/Product")
+const Customer = require("../models/Customer")
 
 const router = express.Router()
 
@@ -23,16 +24,37 @@ try{
 }
 })
 
-router.get("/stock/:product_name",async(req,res)=>{
+router.post("/stock/:available_quentity",async(req,res)=>{
     try{
-        const  stock = await Product.find({_product_name:req.params.product_name})
+        const quantity = req.body
+        const  stock = await Product.find({_available_quentity:req.params.available_quentity})
 
-        if(stock<10){
+        const ord = await orders.create(req.body)
+
+        if(ord>stock){
             return res.json("out of Stock")
+        }else
+        {
+            return res.json("order Sucessfully")
         }
+    }catch(e){
+        res.json({message:e.message})
     }
 })
 
+router.get("/balancedetails/:balance",async(req,res)=>{
+    try{
+        const  bal = await Customer.find({_balance:req.params.balance})
+
+        if(bal<100){
+            return res.json("insufficient balance")
+        }else{
+            return res.json("your balance is good")
+        }
+    }catch(e){
+        res.json({message:e.message})
+    }
+})
 
 
 
